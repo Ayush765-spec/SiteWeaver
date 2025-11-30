@@ -1,0 +1,5 @@
+{
+  "name": "SiteWeaver",
+  "description": "AI-powered website builder that generates Tailwind CSS layouts using Gemini 2.5 Flash.",
+  "requestFramePermissions": []
+}
