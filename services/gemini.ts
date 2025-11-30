@@ -5,14 +5,14 @@ let ai: GoogleGenAI | null = null;
 
 const getAiClient = () => {
   if (ai) return ai;
-  
-  // Safe access to process.env to prevent runtime crashes in browser
-  const apiKey = (typeof process !== 'undefined' && process.env && process.env.API_KEY) || '';
-  
+
+  // Access environment variable using Vite's import.meta.env
+  const apiKey = import.meta.env.VITE_GEMINI_API_KEY || '';
+
   if (!apiKey) {
     console.warn("API Key is missing. AI generation will fail.");
   }
-  
+
   ai = new GoogleGenAI({ apiKey });
   return ai;
 };
@@ -54,7 +54,7 @@ export const generateWebsiteDesign = async (
   try {
     const client = getAiClient();
     const model = 'gemini-2.5-flash';
-    
+
     // Construct a context-aware prompt
     let fullPrompt = prompt;
     if (currentCode && currentCode.length > 50) {
@@ -68,7 +68,7 @@ export const generateWebsiteDesign = async (
       Please regenerate the FULL HTML code incorporating these changes.
       `;
     } else {
-        fullPrompt = `Create a website based on this description: ${prompt}`;
+      fullPrompt = `Create a website based on this description: ${prompt}`;
     }
 
     const response = await client.models.generateContent({
@@ -85,12 +85,12 @@ export const generateWebsiteDesign = async (
       ],
       config: {
         systemInstruction: SYSTEM_INSTRUCTION,
-        temperature: 0.7, 
+        temperature: 0.7,
       }
     });
 
     const text = response.text || '';
-    
+
     // Clean up markdown if present
     const cleanedText = text
       .replace(/```html/g, '')
