@@ -62,9 +62,6 @@ export const Playground: React.FC<PlaygroundProps> = ({ projectId, onBack }) => 
   // Handle selection messages (stable, no dependencies)
   useEffect(() => {
     const handleSelectionMessage = (event: MessageEvent) => {
-      // Debug log
-      console.log("Parent received message:", event.data);
-
       if (event.data.type === 'ELEMENT_SELECTED') {
         console.log('Parent: Element Selected', event.data.payload);
         setSelectedElement(event.data.payload);
@@ -154,7 +151,7 @@ export const Playground: React.FC<PlaygroundProps> = ({ projectId, onBack }) => 
             payload: {
               id: id,
               tagName: target.tagName.toLowerCase(),
-              text: target.innerText?.substring(0, 50), // Truncate text for safety
+              text: target.innerText?.substring(0, 50),
               classes: target.className.replace('sw-highlight', '').trim()
             }
           }, '*');
@@ -173,13 +170,10 @@ export const Playground: React.FC<PlaygroundProps> = ({ projectId, onBack }) => 
             if (el) {
               if (text !== undefined) el.innerText = text;
               if (classes !== undefined) {
-                 // Remove highlight class from old classes string if present to avoid duplication
                  const cleanClasses = classes.replace('sw-highlight', '').trim();
                  el.className = cleanClasses + ' sw-highlight';
               }
               
-              // Send back updated HTML
-              // We need to clean up highlights before sending back
               const clone = document.documentElement.cloneNode(true);
               clone.querySelectorAll('.sw-highlight').forEach(el => {
                  el.classList.remove('sw-highlight');
@@ -207,10 +201,8 @@ export const Playground: React.FC<PlaygroundProps> = ({ projectId, onBack }) => 
   const handleElementUpdate = (updates: { text?: string; classes?: string }) => {
     if (!selectedElement || !iframeRef.current?.contentWindow) return;
 
-    // Optimistically update local state
     setSelectedElement(prev => prev ? ({ ...prev, ...updates }) : null);
 
-    // Send update to iframe
     iframeRef.current.contentWindow.postMessage({
       type: 'UPDATE_ELEMENT',
       payload: {
@@ -277,7 +269,6 @@ export const Playground: React.FC<PlaygroundProps> = ({ projectId, onBack }) => 
       setProject(updatedProject);
       setMessages(updatedProject.history);
 
-      // Auto-save
       setIsSaving(true);
       await saveProject(updatedProject);
       setIsSaving(false);
@@ -348,13 +339,11 @@ export const Playground: React.FC<PlaygroundProps> = ({ projectId, onBack }) => 
         await saveProject(updatedProject);
         setProject(curr => curr ? ({ ...curr, synced: true }) : undefined);
 
-        // Add a system message indicating import
         const sysMsg: ChatMessage = { role: 'model', text: 'Successfully imported your design code. You can now edit it with AI.', timestamp: Date.now() };
         setMessages(prev => [...prev, sysMsg]);
       }
     };
     reader.readAsText(file);
-    // Reset input
     e.target.value = '';
   };
 
@@ -414,7 +403,6 @@ export const Playground: React.FC<PlaygroundProps> = ({ projectId, onBack }) => 
             className="hidden"
             accept=".html,.htm"
           />
-          {/* Mobile View Toggle for Chat */}
           <button
             onClick={() => setShowMobileChat(!showMobileChat)}
             className={`md:hidden p-2 rounded-md ${showMobileChat ? 'bg-slate-100 text-slate-900' : 'text-slate-500'}`}
@@ -449,17 +437,16 @@ export const Playground: React.FC<PlaygroundProps> = ({ projectId, onBack }) => 
         {/* Chat Sidebar - Responsive */}
         <div className={`
           absolute md:relative inset-0 md:inset-auto z-30 md:z-10
-          w-full md:w-80 bg-white border-r border-orange-100 flex flex-col
+          w-full md:w-80 bg-white border-r border-orange-100 flex flex-col 
           shadow-[4px_0_24px_rgba(0,0,0,0.02)]
           transition-transform duration-300 ease-in-out
           ${showMobileChat ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
-`}>
+        `}>
           <div className="p-4 border-b border-slate-100 bg-white flex justify-between items-center">
             <h3 className="font-bold text-slate-800 flex items-center gap-2">
               <Sparkles size={16} className="text-orange-500" />
               AI Assistant
             </h3>
-            {/* Close button for mobile */}
             <button onClick={() => setShowMobileChat(false)} className="md:hidden text-slate-400">
               <ArrowLeft size={18} />
             </button>
@@ -473,7 +460,7 @@ export const Playground: React.FC<PlaygroundProps> = ({ projectId, onBack }) => 
                   ${msg.role === 'user'
                     ? 'bg-slate-900 text-white rounded-br-none'
                     : 'bg-white text-slate-700 rounded-bl-none border border-slate-200'}
-`}>
+                `}>
                   {msg.text}
                 </div>
               </div>
